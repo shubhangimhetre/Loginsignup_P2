@@ -4,14 +4,14 @@ const {registerValidation,loginValidation}=require('../validate')
 const bcrypt=require('bcryptjs')
 const jwt=require('jsonwebtoken')
 var nodemailer = require('nodemailer');
-var activation;
+// var activation;
 var email;
 
 var transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'shubhangimhetre20@navgurukul.org',
-      pass: 'navgurukul'
+      user: 'shubhangi.mhetre551832@gmail.com',
+      pass: 'Shubhangi@123'
     }
   });
 
@@ -49,7 +49,7 @@ exports.user_register=async(req,res)=>{
                     }
                     console.log('Message sent: %s', info.messageId);   
                     console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-                    const user_data=new user({"name":req.body.name,"email":req.body.email,"password":hashedPassword,"otp":otp})
+                    const user_data=new user({"name":req.body.name,"email":req.body.email,"password":hashedPassword,"otp":otp,"activation":false})
                     const user1=await user_data.save()
                     activation=false
                     console.log(user1)
@@ -65,8 +65,9 @@ exports.user_register=async(req,res)=>{
 exports.verify_otp=async(req,res)=>{
     const found=await user.findOne({otp:req.body.otp})
     if(found!=null){
-        res.json({error: false,message:"You has been successfully registered",data:found});
-        activation=true
+        await found.updateOne({activation:true})
+        const updateduser1=await user.findOne({otp:req.body.otp})
+        res.json({error: false,message:"You has been successfully registered and your account is activated.",data:updateduser1});
     }
     else{
         res.render('otp',{msg : 'otp is incorrect'});
@@ -106,9 +107,12 @@ exports.user_login=async(req,res)=>{
         console.log(error1);
         return res.status(400).send(error.details[0].message);
     }else{
-       if(activation==true){
+        const data=await user.findOne({email:req.body.email})
+        
+        
+       if(data.activation==true){
             try{
-                const data=await user.findOne({email:req.body.email})
+                // const data=await user.findOne({email:req.body.email})
                 const validPass=await bcrypt.compare(req.body.password,data.password)
                 // console.log(validPass)
                 if(validPass){

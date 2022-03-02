@@ -8,7 +8,8 @@ var userSchema2 = new Schema({
     email: { type: String, unique: true, lowercase: true, trim: true,required:true },
     password:{ type: String, unique: true,required: true},
     id:{type:String,unique:true,required:true},
-    temp_secret:{type:Object}
+    temp_secret:{type:Object},
+    activation:{type:Boolean}
     
 },{timestamps:true});
 

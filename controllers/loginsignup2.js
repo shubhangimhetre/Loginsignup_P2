@@ -5,7 +5,6 @@ const bcrypt=require('bcryptjs')
 const jwt=require('jsonwebtoken')
 const speakeasy=require('speakeasy')
 const uuid=require('uuid')
-var verified;
 
 exports.get_all=async(req,res)=>{
     const found=await user2.find()
@@ -29,11 +28,10 @@ exports.user_register=async(req,res)=>{
                 res.cookie("user",token)
                 const id= uuid.v4()
                 const temp_secret=speakeasy.generateSecret()
-
-                const user2_data= new user2({"name":req.body.name,"email":req.body.email,"password":hashedPassword,"id":id,"temp_secret":temp_secret})
+                const user2_data= new user2({"name":req.body.name,"email":req.body.email,"password":hashedPassword,"id":id,"temp_secret":temp_secret,"activation":false})
                 console.log(user2_data)
                 const user_data2=await user2_data.save()
-                res.json({error:false,message:"User is registered",data:user_data2})
+                res.json({error:false,message:"please verify your account..",data:user_data2})
             }catch(err){res.send(err)}
         }
     }
@@ -44,14 +42,15 @@ exports.verify_user=async(req,res)=>{
     try{
         const found=await user2.findOne({id:id}) 
         const {base32:secret}=found.temp_secret;
-        // console.log(secret)
         var verified=speakeasy.totp.verify({
             secret,
             encoding:'base32',
             token,
         });
         if(verified){
-            res.json({verified:true})
+            await found.updateOne({activation:true})
+            const updateduser1=await user2.findOne({id:id})
+            res.json({error: false,message:"You has been successfully registered and your account is activated.",data:updateduser1});
         }else{
             res.json({verified:false})
         }
@@ -66,8 +65,9 @@ exports.user_login=async(req,res)=>{
         console.log(error1);
         return res.status(400).send(error.details[0].message);
     }else{
+        const data=await user2.findOne({email:req.body.email})
+        if(data.activation==true){
             try{
-                const data=await user2.findOne({email:req.body.email})
                 const validPass=await bcrypt.compare(req.body.password,data.password)
                 // console.log(validPass)
                 if(validPass){
@@ -76,5 +76,6 @@ exports.user_login=async(req,res)=>{
                     res.json({error :true,message:"Email or password is wrong. data not found"})
                 }
             }catch(err){res.send(err)}
+       }else{res.send('You have not done otp verification')}
     }
 }
