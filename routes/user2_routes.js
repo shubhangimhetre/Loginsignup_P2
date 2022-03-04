@@ -7,7 +7,7 @@ router.get('/all',web2.get_all)
 
 router.post('/register',web2.user_register)
 
-router.post('/verify',verify,web2.verify_user)
+router.patch('/verify',verify,web2.verify_user)
 
 router.post('/login',verify,web2.user_login)
 

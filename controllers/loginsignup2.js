@@ -6,6 +6,7 @@ const jwt=require('jsonwebtoken')
 const speakeasy=require('speakeasy')
 const uuid=require('uuid')
 
+
 exports.get_all=async(req,res)=>{
     const found=await user2.find()
     res.send(found)

@@ -7,11 +7,11 @@ router.get('/all',web1.get_all)
 
 router.post('/register',web1.user_register)
 
-router.post('/verify',verify,web1.verify_otp)
+router.patch('/verify',verify,web1.verify_otp)
 
 router.post('/login',verify,web1.user_login)
 
-router.get('/resend_otp',web1.resend_otp)
+router.patch('/resend_otp',web1.resend_otp)
 
 
 module.exports=router

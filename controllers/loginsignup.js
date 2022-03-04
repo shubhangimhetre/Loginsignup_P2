@@ -4,6 +4,8 @@ const {registerValidation,loginValidation}=require('../validate')
 const bcrypt=require('bcryptjs')
 const jwt=require('jsonwebtoken')
 var nodemailer = require('nodemailer');
+var newOTP = require('otp-generators')
+
 // var activation;
 var email;
 
@@ -25,7 +27,8 @@ exports.user_register=async(req,res)=>{
     if (error){
         return res.status(400).send(error.details[0].message);
     }else{
-        var otp = parseInt(Math.random() * 1000000);
+        // var otp = parseInt(Math.random() * 1000000);
+        var otp=newOTP.generate(6, { alphabets: false, upperCase: false, specialChar: false });
         // console.log(otp);
         const salt=await bcrypt.genSalt(10)
         const hashedPassword= await bcrypt.hash(req.body.password,salt)  //hash password
@@ -77,7 +80,8 @@ exports.verify_otp=async(req,res)=>{
 }
 
 exports.resend_otp=async(req,res)=>{
-    var otp = parseInt(Math.random() * 1000000);
+    // var otp = parseInt(Math.random() * 1000000);
+    var otp=newOTP.generate(6, { alphabets: false, upperCase: false, specialChar: false });
     // console.log(otp);
     var mailOptions={
         from:'shubhangivm7171@gmail.com',
