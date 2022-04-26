@@ -1,3 +1,6 @@
+
+//******Authentication by otp verification******
+
 const mongoose=require('mongoose')
 const user=require('../model/usermodel')
 const {registerValidation,loginValidation}=require('../validate')
@@ -76,7 +79,6 @@ exports.verify_otp=async(req,res)=>{
         res.render('otp',{msg : 'otp is incorrect'});
         activation=false
     }
-
 }
 
 exports.resend_otp=async(req,res)=>{
@@ -101,8 +103,7 @@ exports.resend_otp=async(req,res)=>{
         const updateduser1=await user.findOne({email:email})
         res.json({error:false,message:"Otp is sent to your email.. please verify",data:updateduser1.email})
         activation=true
-    });
- 
+    }); 
 }
 
 exports.user_login=async(req,res)=>{
@@ -111,12 +112,9 @@ exports.user_login=async(req,res)=>{
         console.log(error1);
         return res.status(400).send(error.details[0].message);
     }else{
-        const data=await user.findOne({email:req.body.email})
-        
-        
+        const data=await user.findOne({email:req.body.email})  
        if(data.activation==true){
             try{
-                // const data=await user.findOne({email:req.body.email})
                 const validPass=await bcrypt.compare(req.body.password,data.password)
                 // console.log(validPass)
                 if(validPass){
@@ -127,6 +125,5 @@ exports.user_login=async(req,res)=>{
             }catch(err){res.send(err)}
        }else{res.send('You have not done otp verification')}
     }
-
 }
 

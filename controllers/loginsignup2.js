@@ -1,3 +1,6 @@
+
+//*****Authentication by Google authenticator******
+
 const mongoose=require('mongoose');
 const user2=require('../model/usermodel2')
 const {registerValidation,loginValidation}=require('../validate')
@@ -38,7 +41,7 @@ exports.user_register=async(req,res)=>{
     }
 }
 
-exports.verify_user=async(req,res)=>{
+exports.user_verify=async(req,res)=>{
     const {id,token}=req.body;
     try{
         const found=await user2.findOne({id:id}) 
@@ -80,3 +83,6 @@ exports.user_login=async(req,res)=>{
        }else{res.send('You have not done otp verification')}
     }
 }
+
+
+
