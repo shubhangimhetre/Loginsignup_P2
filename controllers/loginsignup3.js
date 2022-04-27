@@ -32,20 +32,21 @@ exports.user_register = async (req, res) => {
             });
             user.save(function (err) {
                 console.log('In Registration...');
-                authy.register_user(req.body.email, req.body.mobile, req.body.countryCode, async function (err, res) {
-                    if (err) {
-                        console.log(err)
+                authy.register_user(req.body.email, req.body.mobile, req.body.countryCode, async function (regErr, regRes) {
+                    if (regErr) {
+                        console.log(regErr)
                     } else {
-                        // console.log(res)
-                        user.set('authyID', res.user.id)
+                        // console.log(regRes)
+                        user.set('authyID', regRes.user.id)
                         const user2 = await user.save()
                         const session = req.session
                         session.user = user2
                         var username = req.session.user.name;
                         const user3 = await User.findOne({ name: username })
-                        await authy.request_sms(user3.authyID, force = true, function (err, res) {
-                            console.log(res);
-                            // res.send(res2)
+                        await authy.request_sms(user3.authyID, force = true, function (smsErr, smsRes) {
+                            if(smsErr){console.log(smsErr)}
+                            console.log(smsRes);
+                            res.send(smsRes)
                         });
                     }
                 });
@@ -59,17 +60,20 @@ exports.user_register = async (req, res) => {
 
 exports.user_verify = async (req, res) => {
     const { authyID, token } = req.body;
-    await authy.verify(authyID, token,async function (err, res) {
-        if (err) { console.log(err) }
+    await authy.verify(authyID, token,async function (verifyErr, verifyRes) {
+        if (verifyErr) { console.log(verifyErr) }
         // console.log(res);
-        if (res.success) {
-            console.log(res);
+        if (verifyRes.success) {
+            // console.log(verifyRes);
             const found = User.findOne({ authyID: authyID })
             await found.updateOne({ activation: true })
             const updateduser1 = await User.findOne({ authyID: authyID })
-            console.log({ error: false, message: "You has been successfully registered and your account is activated.", data: updateduser1 });
+            console.log(updateduser1)
+            console.log({ error: false, message: "You has been successfully registered and your account is activated.", data: verifyRes });
+            res.send({ error: false, message: "You has been successfully registered and your account is activated.", data: verifyRes });
         } else {
             console.log("Verification failed..")
+            res.send("Verification failed..")
         }  
     })
 }
