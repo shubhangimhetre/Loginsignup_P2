@@ -43,7 +43,13 @@ exports.user_register = async (req, res) => {
             if (error) return res.status(400).send(error);
             console.log('Message sent: %s', info.messageId);
             console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-            const user_data = new user({ "name": req.body.name, "email": req.body.email, "password": hashedPassword, "otp": otp, "activation": false })
+            const user_data = new user({ 
+                "name": req.body.name, 
+                "email": req.body.email, 
+                "password": hashedPassword, 
+                "otp": otp, 
+                "activation": false 
+            })
             await user_data.save();
 
             res.status(200).send("Otp is sent to your email.. please verify");
@@ -54,7 +60,7 @@ exports.user_register = async (req, res) => {
 
 exports.verify_otp = async (req, res) => {
     const found = await user.findOne({ otp: req.body.otp });
-    if (found == null) return res.render('otp', { msg: 'otp is incorrect' });
+    if (found == null) return res.send('otp is incorrect');
 
     await found.updateOne({ activation: true });
     res.status(200).send("You has been successfully registered and your account is activated.");
@@ -80,7 +86,7 @@ exports.resend_otp = async (req, res) => {
 
         const found = await user.findOne({ email: email });
         await found.updateOne({ otp: otp,activation:false});
-        res.status(200).json("Otp is sent to your email.. please verify");
+        res.status(200).send("Otp is sent to your email.. please verify");
 
     });
 }
