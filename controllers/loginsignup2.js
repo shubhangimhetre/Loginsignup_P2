@@ -48,7 +48,6 @@ exports.user_verify = async (req, res) => {
         const found = await user2.findOne({ id: id });
         const { base32: secret } = found.temp_secret;
 
-        console.log(secret==token)
         var verified =await speakeasy.totp.verify({
             secret,
             encoding: 'base32',
