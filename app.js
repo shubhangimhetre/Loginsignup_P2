@@ -2,7 +2,6 @@ const express=require('express');
 const app=express();
 const mongoose=require('mongoose')
 require('dotenv').config();
-const cookieParser=require('cookie-parser');
 const session = require('express-session');
 const web1=require('./routes/user_routes');
 
@@ -10,7 +9,7 @@ const web1=require('./routes/user_routes');
 app.use(session({secret: process.env.session_secret,saveUninitialized: true,resave: true}));
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
-app.use(cookieParser());
+
 
 mongoose.connect(process.env.db_connect, {useNewUrlParser: true})
 .then(()=>{console.log('connected to database..'); })
